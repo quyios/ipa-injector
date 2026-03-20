@@ -12,13 +12,12 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install tools
-        run: |
-          brew install llvm
-          git clone https://github.com/tyilo/insert_dylib.git
-          cd insert_dylib
-          clang insert_dylib/main.c -o insert_dylib
-          chmod +x insert_dylib
-          mv insert_dylib /usr/local/bin/
+     run: |
+        git clone https://github.com/tyilo/insert_dylib.git
+        cd insert_dylib
+        clang insert_dylib/main.c -o insert_dylib_bin
+        chmod +x insert_dylib_bin
+        mv insert_dylib_bin /usr/local/bin/insert_dylib
 
       - name: Unzip IPA
         run: |
