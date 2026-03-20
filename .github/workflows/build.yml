@@ -13,14 +13,11 @@ jobs:
 
       - name: Install tools
         run: |
-          brew install unzip zip
-          git clone https://github.com/tyilo/insert_dylib.git
-          cd insert_dylib
-          clang insert_dylib.c -o insert_dylib
+          brew install insert_dylib
 
-      - name: Prepare IPA
+      - name: Unzip IPA
         run: |
-          mv XXTouchElite_5.4.4-578.tipa app.zip
+          mv *.tipa app.zip
           unzip app.zip
 
       - name: Inject dylib
@@ -28,10 +25,15 @@ jobs:
           APP=$(ls Payload/*.app)
           APP_NAME=$(basename "$APP" .app)
 
-          cp XXTouchHack.dylib "$APP/Frameworks/" || mkdir -p "$APP/Frameworks/" && cp XXTouchHack.dylib "$APP/Frameworks/"
-          cp XXTouchHack.plist "$APP/"
+          echo "App path: $APP"
+          echo "Binary: $APP_NAME"
 
-          ./insert_dylib/insert_dylib @executable_path/Frameworks/XXTouchHack.dylib "$APP/$APP_NAME" --inplace
+          mkdir -p "$APP/Frameworks"
+
+          cp *.dylib "$APP/Frameworks/"
+          cp *.plist "$APP/"
+
+          insert_dylib @executable_path/Frameworks/XXTouchHack.dylib "$APP/$APP_NAME" --inplace
 
       - name: Repack IPA
         run: |
