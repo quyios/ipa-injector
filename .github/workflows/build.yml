@@ -19,10 +19,16 @@ jobs:
           chmod +x insert_dylib_bin
           mv insert_dylib_bin /usr/local/bin/insert_dylib
 
-      - name: Unzip IPA
+      - name: Prepare IPA
         run: |
-          mv *.tipa app.zip
-          unzip app.zip
+          FILE=$(ls *.tipa | head -n 1)
+          echo "Using file: $FILE"
+
+          cp "$FILE" app.ipa
+
+          file app.ipa
+
+          unzip app.ipa
 
       - name: Inject dylib
         run: |
