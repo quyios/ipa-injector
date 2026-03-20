@@ -1,0 +1,44 @@
+name: Build Injected IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install tools
+        run: |
+          brew install unzip zip
+          git clone https://github.com/tyilo/insert_dylib.git
+          cd insert_dylib
+          clang insert_dylib.c -o insert_dylib
+
+      - name: Prepare IPA
+        run: |
+          mv XXTouchElite_5.4.4-578.tipa app.zip
+          unzip app.zip
+
+      - name: Inject dylib
+        run: |
+          APP=$(ls Payload/*.app)
+          APP_NAME=$(basename "$APP" .app)
+
+          cp XXTouchHack.dylib "$APP/Frameworks/" || mkdir -p "$APP/Frameworks/" && cp XXTouchHack.dylib "$APP/Frameworks/"
+          cp XXTouchHack.plist "$APP/"
+
+          ./insert_dylib/insert_dylib @executable_path/Frameworks/XXTouchHack.dylib "$APP/$APP_NAME" --inplace
+
+      - name: Repack IPA
+        run: |
+          zip -r injected.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: injected-ipa
+          path: injected.ipa
