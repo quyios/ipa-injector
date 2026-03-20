@@ -1,0 +1,37 @@
+name: Build HavocAuthInject.dylib (iOS ARM64)
+
+on:
+  push:
+    paths:
+      - 'HavocAuthInject.m'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build dylib
+        run: |
+          SDK=$(xcrun --sdk iphoneos --show-sdk-path)
+          clang \
+            -arch arm64 \
+            -isysroot "$SDK" \
+            -framework Foundation \
+            -framework Security \
+            -dynamiclib \
+            -install_name "@executable_path/Frameworks/HavocAuthInject.dylib" \
+            -miphoneos-version-min=12.0 \
+            -o HavocAuthInject.dylib \
+            HavocAuthInject.m
+          echo "Build success, file size: $(wc -c < HavocAuthInject.dylib) bytes"
+
+      - name: Upload dylib artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HavocAuthInject-dylib
+          path: HavocAuthInject.dylib
+          retention-days: 7
