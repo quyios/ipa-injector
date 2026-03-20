@@ -13,7 +13,12 @@ jobs:
 
       - name: Install tools
         run: |
-          brew install insert_dylib
+          brew install llvm
+          git clone https://github.com/tyilo/insert_dylib.git
+          cd insert_dylib
+          clang insert_dylib/main.c -o insert_dylib
+          chmod +x insert_dylib
+          mv insert_dylib /usr/local/bin/
 
       - name: Unzip IPA
         run: |
@@ -24,9 +29,6 @@ jobs:
         run: |
           APP=$(ls Payload/*.app)
           APP_NAME=$(basename "$APP" .app)
-
-          echo "App path: $APP"
-          echo "Binary: $APP_NAME"
 
           mkdir -p "$APP/Frameworks"
 
